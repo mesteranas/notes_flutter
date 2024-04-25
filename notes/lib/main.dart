@@ -139,7 +139,7 @@ class _test extends State<test>{
                 ElevatedButton(onPressed:() async{
                   Navigator.pop(context);
                   await FlutterShare.share(title: item["name"]??"",text: item["content"]??"");
-                } , child:Text ("share note content"));
+                } , child:Text ("share note content"))
               ],),),);
             });
           } ,)
