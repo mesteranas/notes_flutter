@@ -1,3 +1,5 @@
+import 'package:flutter_share/flutter_share.dart';
+import 'package:flutter/services.dart';
 import 'createNewNote.dart';
 import 'jsonControl.dart'as jsonControl;
 import 'package:http/http.dart' as http;
@@ -77,14 +79,70 @@ class _test extends State<test>{
         body:Container(alignment: Alignment.center
         ,child: Column(children: [const  Text("this app is created by mesteranas"),
         ElevatedButton(onPressed:() async{
-          await Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateOrEditNewNote("", "")));
-          await updateNotes();
+          await Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateOrEditNewNote("", "",notes)));
+          updateNotes();
         }, child: Text("create new note")),
           for (var item in notes)
           ListTile(title: Text(item["name"]??"note error"),
           onTap:() {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewText(item["name"]??"","date:${item["date"]??""} \n ${item["content"]??""}")));
-          },)
+          },
+          onLongPress:(){
+            showDialog(context: context, builder: (context){
+              return AlertDialog(title: Text("note actions"),
+              content: Center(child: Column(children: [
+                ElevatedButton(onPressed:(){
+                  Navigator.pop(context);
+                  showDialog(context: context, builder: (context){
+                    return AlertDialog(title: Text("do you wanna delete this note?"),
+                    content: Center(child: ElevatedButton(
+                      child: Text("yeah i'm sure"),
+                      onPressed:(){
+                        setState(() {
+                          notes.remove(item);
+                        });
+                        jsonControl.save(notes);
+                        Navigator.pop(context);
+                      } ,
+                    ),),);
+                  });
+                } , child: Text("delete note")),
+                ElevatedButton(onPressed: (){
+                  Navigator.pop(context);
+                  showDialog(context: context, builder: (context){
+                      TextEditingController name=TextEditingController(text: item["name"]??"");
+  TextEditingController noteContent=TextEditingController(text: item["content"]??"");
+
+                    return AlertDialog(title: Text("edit note"),content:Center(
+                      child:Column(children: [
+        TextFormField(controller: name,decoration: InputDecoration(label: Text("title")),keyboardType: TextInputType.text,textInputAction: TextInputAction.next,),
+        TextFormField(controller: noteContent,decoration: InputDecoration(label: Text("content")),keyboardType: TextInputType.multiline,textInputAction: TextInputAction.newline,maxLines: 10,),
+        ElevatedButton(onPressed: (){
+          notes.remove(item);
+            DateTime now=DateTime.now();
+            String formatDate="${now.day} / ${now.month} / ${now.year} ${now.hour} : ${now.minute} :${now.second} :${now.millisecond}";
+            setState(() {
+            notes.add({"name":name.text,"content":noteContent.text,"date":formatDate});
+            });
+          jsonControl.save(notes);
+          Navigator.pop(context);
+        }, child: Text("done"))
+                      ])
+                    ) ,);
+                  });
+
+                }, child: Text("edit note")),
+                ElevatedButton(onPressed: (){
+                  Clipboard.setData(ClipboardData(text: item["content"]??""));
+                  Navigator.pop(context);
+                }, child: Text("copy note content")),
+                ElevatedButton(onPressed:() async{
+                  Navigator.pop(context);
+                  await FlutterShare.share(title: item["name"]??"",text: item["content"]??"");
+                } , child:Text ("share note content"));
+              ],),),);
+            });
+          } ,)
     ])),)));
   }
 }

@@ -5,17 +5,9 @@ class CreateOrEditNewNote extends StatelessWidget{
   final TextEditingController noteContent=TextEditingController();
   final String title;
   final content;
-  List<Map<String,String>> notes=[{"name":"no notes fownd!","content":"","date":""}];
-  CreateOrEditNewNote(this.title,this.content);
+  List<Map<String,String>> notes;
+  CreateOrEditNewNote(this.title,this.content,this.notes);
 
-    void initState(){
-  updateNotes();
-  }
-  Future <void> updateNotes() async{
-    final result=await jsonControl.get();
-      notes=result;
-
-  }
 
   @override
   Widget build(BuildContext context){
@@ -29,8 +21,8 @@ class CreateOrEditNewNote extends StatelessWidget{
         ElevatedButton(onPressed: (){
             DateTime now=DateTime.now();
             String formatDate="${now.day} / ${now.month} / ${now.year} ${now.hour} : ${now.minute} :${now.second} :${now.millisecond}";
-          notes.add({"name":name.text,"content":noteContent.text,"date":formatDate});
-          jsonControl.save(notes);
+          this.notes.add({"name":name.text,"content":noteContent.text,"date":formatDate});
+          jsonControl.save(this.notes);
           Navigator.pop(context);
         }, child: Text("done"))
       ],) ,),

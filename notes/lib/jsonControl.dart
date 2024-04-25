@@ -17,19 +17,17 @@ Future<List<Map<String, String>>> get() async {
         Map<String, String> r = {};
         item.forEach((key, value) {
           r[key.toString()] = value.toString();
-        });
+        } );
         result.add(r);
       } else {
-        // Handle invalid data format if needed
+
         result.add({});
       }
     }
 
     return result;
   } else {
-    return [
-      {"name": "no notes found!", "content": "", "date": ""}
-    ];
+    return [];
   }
 }
 
